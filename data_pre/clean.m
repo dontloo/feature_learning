@@ -1,7 +1,7 @@
 % select corresponding images according to the labels available
-lbl_dir = '/media/662CD4C02CD48D05/_backup/test_643_lab_ref/';
-data_dir = '/home/dontloo/Desktop/re/data/test_643_cln/';
-raw_data_dir = '/home/dontloo/Desktop/re/raw_data/test_643/';
+lbl_dir = '/media/662CD4C02CD48D05/_backup/data/images/test_643_4_lab';
+data_dir = '/media/662CD4C02CD48D05/_backup/data/images/test_643_4_cln/';
+raw_data_dir = '/media/662CD4C02CD48D05/_backup/data/images/test_643_4/';
 
 all_lbl = dir(lbl_dir);
 for idx = 3:length(all_lbl)

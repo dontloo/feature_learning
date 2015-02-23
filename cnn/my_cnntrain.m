@@ -1,5 +1,6 @@
 function net = my_cnntrain(net, x, y, opts)
-    m = size(x, 3);
+%     m = size(x, 3);
+    m = size(x, 4);
     numbatches = m / opts.batchsize;
     if rem(numbatches, 1) ~= 0
         error('numbatches not integer');
@@ -11,10 +12,11 @@ function net = my_cnntrain(net, x, y, opts)
         tic;
         kk = randperm(m);
         for l = 1 : numbatches
-            batch_x = x(:, :, kk((l - 1) * opts.batchsize + 1 : l * opts.batchsize));
+%             batch_x = x(:, :, kk((l - 1) * opts.batchsize + 1 : l * opts.batchsize));
+            batch_x = x(:, :, :, kk((l - 1) * opts.batchsize + 1 : l * opts.batchsize));
             batch_y = y(:,    kk((l - 1) * opts.batchsize + 1 : l * opts.batchsize));
 
-            net = cnnff(net, batch_x);
+            net = my_cnnff(net, batch_x, opts.inputmaps);
             net = cnnbp(net, batch_y);
             net = cnnapplygrads(net, opts);
             if isempty(net.rL)

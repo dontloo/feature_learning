@@ -1,9 +1,12 @@
 % data_dir = '/home/dontloo/Desktop/re/raw_data/2011_09_26/2011_09_26_drive_0002_sync/image_03/data/';
 % data_dir = '/home/dontloo/Desktop/re/raw_data/2011_09_26/2011_09_26_drive_0005_sync/image_03/data/';
-data_dir = '/home/dontloo/Desktop/re/raw_data/test_643/';
+% data_dir = '/media/662CD4C02CD48D05/_backup/data/images/test_643_4/';
+data_dir = '/media/662CD4C02CD48D05/_backup/data/images/train_849_4/';
+
 
 % output_dir = '/home/dontloo/Desktop/re/data/2011_09_26_drive_0002_mix/';
-output_dir = '/home/dontloo/Desktop/re/data/test_643_mix/';
+% output_dir = '/media/662CD4C02CD48D05/_backup/data/images/test_643_4_mix/';
+output_dir = '/media/662CD4C02CD48D05/_backup/data/images/train_849_mix/';
 
 tmp_dir = '/home/dontloo/Desktop/re/tmp/';
 all_files = dir(data_dir);
