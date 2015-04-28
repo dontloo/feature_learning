@@ -23,13 +23,13 @@ function [wins,win_lbls] = load_rdm_win(no_chnls,data_file_names,lbl_files_names
         end
         l = imread(lbl_file_name, 'PGM');
         
-        [x,y] = window_slice_rdm_blnc(d,l,para,win_im,calsses,m_ofst,n_ofst,no_chnls);
+        [x,y] = window_slice_rdm(d,l,para,win_im,calsses,m_ofst,n_ofst,no_chnls);
         wins(:,:,:,(idx-1)*win_im+1:idx*win_im) = x;
         win_lbls(:,(idx-1)*win_im+1:idx*win_im) = y;
     end
 end
 
-function [wins,win_lbls] = window_slice_rdm_blnc(data,label,para,win_im,calsses,m_ofst,n_ofst,no_chnls)
+function [wins,win_lbls] = window_slice_rdm(data,label,para,win_im,calsses,m_ofst,n_ofst,no_chnls)
     wins = zeros(para.win_m,para.win_n,no_chnls,win_im,'uint8');
     win_lbls = zeros(3,win_im,'uint8');
     for idx = 1:win_im

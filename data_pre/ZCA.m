@@ -7,7 +7,7 @@ clear;
 % para.img_n = 1242;
 % n_im = 60;
 % [x,y] = load_im_gray(data_file_names,lbl_files_names,1,n_im,para);
-name_zca = 'train_849_4_232*3*8_RGB_blnc.mat';
+name_zca = 'train_849_4_400*3*4_LAB_blnc.mat';
 load(['/media/662CD4C02CD48D05/_backup/data/train_data/' name_zca]);
 x = double(reshape(train_x,para.win_m*para.win_n*para.no_chnl,size(train_x,4)));
 avg = mean(x, 2);

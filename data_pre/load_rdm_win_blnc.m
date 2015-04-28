@@ -1,9 +1,9 @@
 % [ground, vertical, sky]
 % position of windows and labels need to be checked carefully
-function [wins,win_lbls] = load_rdm_win_blnc(no_chnls,data_file_names,lbl_files_names,arg_start,arg_end,para,win_im_cl)
+function [wins,win_lbls] = load_rdm_win_blnc(data_file_names,lbl_files_names,arg_start,arg_end,para,win_im_cl)
     n_im = arg_end-arg_start+1;
     
-    wins = zeros(para.win_m,para.win_n,no_chnls,win_im_cl*n_im*3,'uint8');
+    wins = zeros(para.win_m,para.win_n,para.no_chnl,win_im_cl*n_im*3,'uint8');
     win_lbls = zeros(3,win_im_cl*n_im*3,'uint8');
     calsses = [0,128,255];
     
@@ -16,14 +16,18 @@ function [wins,win_lbls] = load_rdm_win_blnc(no_chnls,data_file_names,lbl_files_
         data_file_name = data_file_names{arg_start+idx-1};
         lbl_file_name = lbl_files_names{arg_start+idx-1};
         
-        % rgb here
+        % color space here
         d = imread(data_file_name, 'PNG');
-        if no_chnls==1
+        if strcmp(para.color_space,'grayscale')
             d = rgb2gray(d);
+        elseif strcmp(para.color_space,'hsv')
+            d = rgb2hsv(d);
+        elseif strcmp(para.color_space,'lab')
+            d = rgb2lab(d);
         end
         l = imread(lbl_file_name, 'PGM');
         
-        [x,y] = window_slice_rdm_blnc(d,l,para,win_im_cl,calsses,m_ofst,n_ofst,no_chnls);
+        [x,y] = window_slice_rdm_blnc(d,l,para,win_im_cl,calsses,m_ofst,n_ofst,para.no_chnl);
         wins(:,:,:,(idx-1)*win_im_cl*3+1:idx*win_im_cl*3) = x;
         win_lbls(:,(idx-1)*win_im_cl*3+1:idx*win_im_cl*3) = y;
     end

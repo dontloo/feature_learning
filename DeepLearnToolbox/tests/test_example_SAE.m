@@ -13,7 +13,7 @@ sae = saesetup([784 100]);
 sae.ae{1}.activation_function       = 'sigm';
 sae.ae{1}.learningRate              = 1;
 sae.ae{1}.inputZeroMaskedFraction   = 0.5;
-opts.numepochs =   1;
+opts.numepochs = 100;
 opts.batchsize = 100;
 sae = saetrain(sae, train_x, opts);
 visualize(sae.ae{1}.W{1}(:,2:end)')
@@ -25,7 +25,7 @@ nn.learningRate                     = 1;
 nn.W{1} = sae.ae{1}.W{1};
 
 % Train the FFNN
-opts.numepochs =   1;
+opts.numepochs =   10;
 opts.batchsize = 100;
 nn = nntrain(nn, train_x, train_y, opts);
 [er, bad] = nntest(nn, test_x, test_y);

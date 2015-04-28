@@ -2,16 +2,16 @@
 clear all; close all; clc;
 load mnist_uint8;
 x = cell(100, 1);
-N = 600;
+N = 100;
 for i = 1 : 100
     x{i}{1} = reshape(train_x(((i - 1) * N + 1) : (i) * N, :), N, 28, 28) * 255;
 end
 %% ex 1
 scae = {
-    struct('outputmaps', 10, 'inputkernel', [1 5 5], 'outputkernel', [1 5 5], 'scale', [1 2 2], 'sigma', 0.1, 'momentum', 0.9, 'noise', 0)
+    struct('outputmaps', 6, 'inputkernel', [1 5 5], 'outputkernel', [1 5 5], 'scale', [1 4 4], 'sigma', 0.1, 'momentum', 0.9, 'noise', 0)
 };
 
-opts.rounds     = 1000;
+opts.rounds     = 100;
 opts.batchsize  =    1;
 opts.alpha      = 0.01;
 opts.ddinterval =   10;
