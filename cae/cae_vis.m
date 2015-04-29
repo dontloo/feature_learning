@@ -5,5 +5,5 @@ function cae_vis(cae)
             tmp(cae.ks*(ic-1)+1:cae.ks*ic,cae.ks*(oc-1)+1:cae.ks*oc) = cae.w(:,:,ic,oc);
         end
     end
-    imshow(imresize(tmp,10,'nearest'));
+    figure,imshow(imresize(tmp,10,'nearest'));
 end
