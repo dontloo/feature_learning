@@ -3,7 +3,7 @@
 function [wins,win_lbls] = load_rdm_win_blnc(data_file_names,lbl_files_names,arg_start,arg_end,para,win_im_cl)
     n_im = arg_end-arg_start+1;
     
-    wins = zeros(para.win_m,para.win_n,para.no_chnl,win_im_cl*n_im*3,'uint8');
+    wins = zeros(para.win_m,para.win_n,para.no_chnl,win_im_cl*n_im*3);
     win_lbls = zeros(3,win_im_cl*n_im*3,'uint8');
     calsses = [0,128,255];
     
@@ -17,13 +17,13 @@ function [wins,win_lbls] = load_rdm_win_blnc(data_file_names,lbl_files_names,arg
         lbl_file_name = lbl_files_names{arg_start+idx-1};
         
         % color space here
-        d = imread(data_file_name, 'PNG');
+        d = im2double(imread(data_file_name, 'PNG'));
         if strcmp(para.color_space,'grayscale')
             d = rgb2gray(d);
         elseif strcmp(para.color_space,'hsv')
             d = rgb2hsv(d);
         elseif strcmp(para.color_space,'lab')
-            d = rgb2lab(d);
+            d = rgb2lab(d)/100;
         end
         l = imread(lbl_file_name, 'PGM');
         
@@ -34,7 +34,7 @@ function [wins,win_lbls] = load_rdm_win_blnc(data_file_names,lbl_files_names,arg
 end
 
 function [wins,win_lbls] = window_slice_rdm_blnc(data,label,para,win_im_cl,calsses,m_ofst,n_ofst,no_chnls)
-    wins = zeros(para.win_m,para.win_n,no_chnls,win_im_cl*3,'uint8');
+    wins = zeros(para.win_m,para.win_n,no_chnls,win_im_cl*3);
     win_lbls = zeros(3,win_im_cl*3,'uint8');
     ctr = [0,0,0];
     while sum(ctr == win_im_cl)~=3

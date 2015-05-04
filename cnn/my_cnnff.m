@@ -1,12 +1,14 @@
-function net = my_cnnff(net, x, inputmaps)
+function net = my_cnnff(net, x)
     n = numel(net.layers);
 %     net.layers{1}.a{1} = x;
-%     inputmaps = 1;
-    
-    [s1,s2,~,s4] = size(x);
+%     inputmaps = 1; 
+
+    % added
+    inputmaps = size(x,4);
     for channel_idx = 1:inputmaps
-        net.layers{1}.a{channel_idx} = reshape(x(:,:,channel_idx,:),s1,s2,s4);
+        net.layers{1}.a{channel_idx} = x(:,:,:,channel_idx);
     end
+    % added
 
     for l = 2 : n   %  for each layer
         if strcmp(net.layers{l}.type, 'c')

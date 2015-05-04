@@ -2,20 +2,17 @@ function CNN_test
     clear;
 %     run('/home/dontloo/Desktop/re/matlab/vlfeat-0.9.20/toolbox/vl_setup');
 %     load('/media/662CD4C02CD48D05/_backup/data/train_res/ZCA_train_849_4_232*3*8_RGB_blnc.mat');
-    load('/media/662CD4C02CD48D05/_backup/data/train_res/8.12_ZCA_train_849_4_400*3*4_LAB_blnc.mat');
+    load('/media/662CD4C02CD48D05/_backup/data/train_res/8.8_ZCA_cyan_2_264*3*5_Gray_blnc.mat');
 %     load('/media/662CD4C02CD48D05/_backup/data/test_data/test_643_4_456*20_RGB.mat');
+    U=0;S=0;avg=0;epsilon=0;
+    load('/media/662CD4C02CD48D05/_backup/data/train_data/ZCA_road_all_942*1*32_Gray_rdm.mat');
+    % road_test_4
+    % 0015_0000000000
+    % cyan_2/
+    % 0032_0000000020
+    im_path = '/media/662CD4C02CD48D05/_backup/data/images/road_test_4/0015_0000000000.png';
+    lbl_path = '/media/662CD4C02CD48D05/_backup/data/images/road_test_4/0015_0000000000.pgm';
     
-    % 09_26_0005_0000000000
-    % 09_26_0001_0000000000
-    % 09_26_0001_0000000045
-    % 09_26_0014_0000000180
-    % 09_26_0051_0000000190
-    % 09_29_0026_0000000110
-    % 09_26_0106_0000000205
-    % 09_26_0096_0000000160
-    % 09_26_0059_0000000250
-    im_path = '/media/662CD4C02CD48D05/_backup/data/images/test_643_4_cln/09_26_0014_0000000180.png';
-    lbl_path = '/media/662CD4C02CD48D05/_backup/data/images/test_643_4_lab/lbl_09_26_0014_0000000180.pgm';
     [er, pred, lbl_path] = test_cnn_on_one_img(cnn, im_path, lbl_path,para,U,S,avg,epsilon);
 %     [er, pred, lbl] = test_cnn_on_one_img(cnn,data_file_names{1},lbl_file_names{1},para,U,S,avg,epsilon);
     % imshow(mat2gray(pred, [1 3]));

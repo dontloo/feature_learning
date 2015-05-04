@@ -3,28 +3,32 @@
 function [cae] = cae_train(cae, x, opts)
     
     [x,para] = cae_check(cae,x,opts);
-    cae.L = zeros(opts.numepochs,1);
+    cae.L = zeros(opts.numepochs*para.bnum,1);
     for i=1:opts.numepochs
         disp(['epoch ' num2str(i) '/' num2str(opts.numepochs)]);
         tic;
-        rdm_idx = randperm(para.pnum);
+        if opts.shuffle==1
+            idx = randperm(para.pnum);
+        else
+            idx = linspace(1,para.pnum,para.pnum);
+        end
         for j = 1 : para.bnum
-            batch_x = x(:,:,:,rdm_idx((j-1)*para.bsze+1:j*para.bsze));            
+            batch_x = x(:,:,:,idx((j-1)*para.bsze+1:j*para.bsze));            
             cae = cae_ffbp(cae, batch_x, para);
 %             [numdw,numdb,numdc] = cae_check_grad(cae, batch_x, para); % correct for multi channel input data
             cae = cae_update(cae, opts); % w w_tilde            
             cae.L((i-1)*para.bnum+j)=cae.loss;            
         end
-        disp(mean(cae.L(end-para.bnum+1:end)));
+        disp(mean(cae.L((i-1)*para.bnum+1:i*para.bnum)));
         toc;
-    end
-    figure,plot(cae.L);
+    end    
 end
 
 function [cae] = cae_ffbp(cae, x, para)
-    x_noise = x.*(rand(size(x))>cae.noise);
+    x_noise = x.*(rand(size(x))>=cae.noise);
     cae = cae_up(cae, x_noise, para);
     cae = cae_pool(cae, para);
+    cae = cae_resize_pool(cae, para);
     cae = cae_down(cae, para);
     cae = cae_grad(cae, x, para);
 end
@@ -45,19 +49,34 @@ end
 function cae = cae_pool(cae, para)
     % ps: pool size
     if cae.ps>=2
-        cae.h_pool = zeros(size(cae.h));
-        cae.h_mask = zeros(size(cae.h));
+        cae.h_pool = zeros(size(cae.h)./[cae.ps cae.ps 1 1]);
         for i = 1:para.pgrds
             for j = 1:para.pgrds
                 grid = cae.h((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:);
-                mx = repmat(max(max(grid)),cae.ps,cae.ps);
-                cae.h_pool((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:) = mx;
-                mask = (grid==mx);
+                cae.h_pool(i,j,:,:) = max(max(grid));
+%                 mx = repmat(max(max(grid)),cae.ps,cae.ps);
+%                 cae.h_repl((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:) = mx;
+%                 mask = (grid==mx);
+%                 cae.h_mask((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:) = mask./repmat(sum(sum(mask)),cae.ps,cae.ps);
+            end
+        end        
+    end
+end
+
+function cae = cae_resize_pool(cae, para)
+    if cae.ps>=2
+        cae.h_repl = zeros(size(cae.h));        
+        cae.h_mask = zeros(size(cae.h));
+        for i = 1:para.pgrds
+            for j = 1:para.pgrds
+                tmp = repmat(cae.h_pool(i,j,:,:),cae.ps,cae.ps);
+                cae.h_repl((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:) = tmp;
+                mask = (cae.h((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:)==tmp);
                 cae.h_mask((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:) = mask./repmat(sum(sum(mask)),cae.ps,cae.ps);
             end
-        end 
+        end
     else
-        cae.h_pool = cae.h;        
+        cae.h_repl = cae.h; 
     end
 end
 
@@ -67,7 +86,7 @@ function [cae] = cae_down(cae, para)
     for pt = 1:para.bsze
         for ic = 1:cae.ic
             for oc = 1:cae.oc
-                cae.o(:,:,ic,pt) = cae.o(:,:,ic,pt) + conv2(cae.h_pool(:,:,oc,pt),cae.w_tilde(:,:,ic,oc),'full');
+                cae.o(:,:,ic,pt) = cae.o(:,:,ic,pt) + conv2(cae.h_repl(:,:,oc,pt),cae.w_tilde(:,:,ic,oc),'full');
             end
             cae.o(:,:,ic,pt) = sigm(cae.o(:,:,ic,pt)+cae.c(ic));
         end        
@@ -77,18 +96,15 @@ end
 function [cae] = cae_grad(cae, x, para)
     % o = sigmoid(y'), y' = sigma(maxpool(sigmoid(h'))*W~)+c, h' = W*x+b
     % y', h' are pre-activation terms
-    cae.err = cae.o-x;
+    cae.err = (cae.o-x);
     cae.loss = 1/2 * sum(cae.err(:) .^2 )/para.bsze;
-    cae.dh = zeros(size(cae.h));
-    cae.dc = zeros([size(cae.c) para.bsze]);
-    cae.db = zeros([size(cae.b) para.bsze]);
-    cae.dw = zeros([size(cae.w) para.bsze]);
-    
+
     % dloss/dy' = (y-x)(y(1-y))
-    cae.dy = cae.err.*(cae.o.*(1-cae.o));
+    cae.dy = cae.err.*(cae.o.*(1-cae.o))/para.bsze;
     % dloss/dc = sigma(dy')
-    cae.dc = reshape(sum(sum(cae.dy)),size(cae.dc));
+    cae.dc = reshape(sum(sum(cae.dy)),[size(cae.c) para.bsze]);
     % dloss/dmaxpool(sigmoid(h')) = sigma(dy'*W)
+    cae.dh = zeros(size(cae.h));
     for pt = 1:para.bsze
         for oc = 1:cae.oc
             for ic = 1:cae.ic
@@ -99,9 +115,17 @@ function [cae] = cae_grad(cae, x, para)
     if cae.ps>=2        
         % dmaxpool(sigmoid(h'))/dsigmoid(h')
         % non-max terms are zero, if duplicate max values, normalize equally. 
+        % resize
+        cae.dh_pool = zeros(size(cae.h_pool));
         for i = 1:para.pgrds
             for j = 1:para.pgrds      
-                cae.dh((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:) = repmat(sum(sum(cae.dh((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:))),cae.ps,cae.ps);
+                cae.dh_pool(i,j,:,:) = sum(sum(cae.dh((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:)));
+            end
+        end
+        % max
+        for i = 1:para.pgrds
+            for j = 1:para.pgrds      
+                cae.dh((i-1)*cae.ps+1:i*cae.ps,(j-1)*cae.ps+1:j*cae.ps,:,:) = repmat(cae.dh_pool(i,j,:,:),cae.ps,cae.ps);
             end
         end
         cae.dh = cae.dh.*cae.h_mask;
@@ -109,15 +133,16 @@ function [cae] = cae_grad(cae, x, para)
     % dsigmoid(h')/dh'
     cae.dh = cae.dh.*(cae.h.*(1-cae.h)); 
     % dloss/db = sigma(dh')
-    cae.db = reshape(sum(sum(cae.dh)),size(cae.db));
+    cae.db = reshape(sum(sum(cae.dh)),[size(cae.b) para.bsze]);
     % dloss/dw = x~*dh'+dy'~*h
+    cae.dw = zeros([size(cae.w) para.bsze]);
     cae.dy_tilde = flip(flip(cae.dy,1),2);
     x_tilde = flip(flip(x,1),2);
     for pt = 1:para.bsze
         for oc = 1:cae.oc
             for ic = 1:cae.ic                
                 % x~*dh+dy~*h, perfect                
-                cae.dw(:,:,ic,oc,pt) = conv2(x_tilde(:,:,ic,pt),cae.dh(:,:,oc,pt),'valid')+conv2(cae.dy_tilde(:,:,ic,pt),cae.h_pool(:,:,oc,pt),'valid');
+                cae.dw(:,:,ic,oc,pt) = conv2(x_tilde(:,:,ic,pt),cae.dh(:,:,oc,pt),'valid')+conv2(cae.dy_tilde(:,:,ic,pt),cae.h_repl(:,:,oc,pt),'valid');
             end
         end        
     end    
@@ -188,9 +213,7 @@ function [numdw,numdb,numdc] = cae_check_grad(cae, x, para)
 end
 
 function [x,para] = cae_check(cae, x, opts)
-    if numel(size(x))<4
-        x = reshape(x,[size(x,1) size(x,2) 1 size(x,3)]);
-    end
+
     para.m = size(x,1);
     para.pnum = size(x,4); % number of data points
     para.pgrds = (para.m-cae.ks+1)/cae.ps; % pool grids
