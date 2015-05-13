@@ -2,7 +2,7 @@
 function [ er, pred, lbl ] = test_cnn_on_one_img(cnn,data_file_name,lbl_file_name,para,U,S,avg,epsilon)
     im = im2double(imread(data_file_name, 'PNG'));
     % color space here
-    if strcmp(para.color_space,'grayscale')
+    if strcmp(para.color_space,'gray')
         d = rgb2gray(im);
     elseif strcmp(para.color_space,'hsv')
         d = rgb2hsv(im);
@@ -19,9 +19,9 @@ function [ er, pred, lbl ] = test_cnn_on_one_img(cnn,data_file_name,lbl_file_nam
 
 %     figure, imshow(im);
 %     figure, imshow(mat2gray(pred, [1 3]));
-    imwrite(mat2gray(pred, [1 3]),['/home/dontloo/Desktop/re/res/24.32_' data_file_name(end-24:end)]);
+    imwrite(mat2gray(pred, [1 3]),['/home/dontloo/Desktop/re/tmp/' data_file_name(end-18:end)]);
     pred = classes(pred);  
-    lbl = imread(lbl_file_name, 'PGM');
+    lbl = imread(lbl_file_name);
     lbl = crop_im(lbl, para.img_m, para.img_n, floor(para.win_m/2), floor(para.win_n/2));
     bad = find(pred ~= lbl);
     er = numel(bad) / numel(lbl);
@@ -37,7 +37,7 @@ function [pred] = pred_superpxl(cnn,para,im,d,U,S,avg,epsilon)
     tmp = crop_im(im, para.img_m, para.img_n, m_ofst, n_ofst);
 %     [centroids,res_im,no_clusters] = superpix_centroids_GBS(tmp, 6, 64);
 %     [centroids,res_im,no_clusters] = superpix_centroids_VLSLIC(tmp, 16, 1200);
-    [centroids,res_im,no_clusters] = superpix_centroids_SLIC(tmp, 320, 160);
+    [centroids,res_im,no_clusters] = superpix_centroids_SLIC(im2uint8(tmp), 320, 16);
     ofst_centroids(1,:)=centroids(1,:)+m_ofst-1;
     ofst_centroids(2,:)=centroids(2,:)+n_ofst-1;
 
@@ -50,14 +50,14 @@ function [pred] = pred_superpxl(cnn,para,im,d,U,S,avg,epsilon)
     for idx = 1:no_clusters
         pred(res_im==centroids(3,idx)) = centroid_pred(idx);
     end    
-    figure, imshow(mat2gray(pred, [1 3]));
-    figure, imshow(tmp);
+%     figure, imshow(mat2gray(pred, [1 3]));
+%     figure, imshow(tmp);
     
-%     %mrf denoise
-%     denoised_pred = superpix_mrf_denoise(centroid_pred,res_im,no_clusters,1,10);
-%     for idx = 1:no_clusters
-%         pred(res_im==centroids(3,idx)) = denoised_pred(idx);
-%     end   
+    %mrf denoise
+    denoised_pred = superpix_mrf_denoise(centroid_pred,res_im,no_clusters,1,1);
+    for idx = 1:no_clusters
+        pred(res_im==centroids(3,idx)) = denoised_pred(idx);
+    end   
 %     figure, imshow(mat2gray(pred, [1 3]));
     
 end

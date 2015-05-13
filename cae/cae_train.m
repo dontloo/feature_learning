@@ -1,5 +1,3 @@
-% x is [rows*rows*chnls*pts]
-% full/valid
 function [cae] = cae_train(cae, x, opts)
     
     [x,para] = cae_check(cae,x,opts);

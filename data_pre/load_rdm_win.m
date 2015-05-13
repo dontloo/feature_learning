@@ -15,7 +15,7 @@ function [wins] = load_rdm_win(data_file_names,arg_start,arg_end,para,win_im)
         
         % color space here
         d = im2double(imread(data_file_name));
-        if strcmp(para.color_space,'grayscale')
+        if strcmp(para.color_space,'gray')
             d = rgb2gray(d);
         elseif strcmp(para.color_space,'hsv')
             d = rgb2hsv(d);

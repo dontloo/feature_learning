@@ -18,7 +18,7 @@ function [wins,win_lbls] = load_rdm_win_blnc(data_file_names,lbl_files_names,arg
         
         % color space here
         d = im2double(imread(data_file_name, 'PNG'));
-        if strcmp(para.color_space,'grayscale')
+        if strcmp(para.color_space,'gray')
             d = rgb2gray(d);
         elseif strcmp(para.color_space,'hsv')
             d = rgb2hsv(d);

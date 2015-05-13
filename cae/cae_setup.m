@@ -1,3 +1,4 @@
+% input channels | output channels | kernel size | pool size | noise
 function [ cae ] = cae_setup(ic,oc,ks,ps,noise)
     cae.ic = ic; % input channels
     cae.oc = oc; % output channels
