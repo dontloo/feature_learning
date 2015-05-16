@@ -13,7 +13,7 @@ function [cae] = cae_train(cae, x, opts)
         for j = 1 : para.bnum
             batch_x = x(:,:,:,idx((j-1)*para.bsze+1:j*para.bsze));            
             cae = cae_ffbp(cae, batch_x, para);
-%             [numdw,numdb,numdc] = cae_check_grad(cae, batch_x, para); % correct for multi channel input data
+            [numdw,numdb,numdc] = cae_check_grad(cae, batch_x, para); % correct for multi channel input data
             cae = cae_update(cae, opts); % w w_tilde            
             cae.L((i-1)*para.bnum+j)=cae.loss;            
         end
@@ -145,9 +145,9 @@ function [cae] = cae_grad(cae, x, para)
         end        
     end    
     
-    cae.dc = sum(cae.dc,3)/para.bsze;
-    cae.db = sum(cae.db,3)/para.bsze;
-    cae.dw = sum(cae.dw,5)/para.bsze;    
+    cae.dc = sum(cae.dc,3);
+    cae.db = sum(cae.db,3);
+    cae.dw = sum(cae.dw,5);    
 end
 
 function [cae] = cae_update(cae, opts)

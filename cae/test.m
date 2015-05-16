@@ -13,8 +13,8 @@ cae = cae_setup(1,3,5,2,0);
 
 opts.alpha = 0.03;
 opts.numepochs = 8;
-opts.batchsize = 100;
-opts.shuffle = 1;
+opts.batchsize = 3;
+opts.shuffle = 0;
 cae = cae_train(cae, x, opts);
 
 % random select, display
