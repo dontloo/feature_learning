@@ -25,7 +25,7 @@ function [wins,win_lbls] = load_rdm_win_blnc(data_file_names,lbl_files_names,arg
         elseif strcmp(para.color_space,'lab')
             d = rgb2lab(d)/100;
         end
-        l = imread(lbl_file_name, 'PGM');
+        l = imread(lbl_file_name);
         
         [x,y] = window_slice_rdm_blnc(d,l,para,win_im_cl,calsses,m_ofst,n_ofst,para.no_chnl);
         wins(:,:,:,(idx-1)*win_im_cl*3+1:idx*win_im_cl*3) = x;

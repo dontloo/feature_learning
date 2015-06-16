@@ -1,14 +1,14 @@
-function cae_vis(cae, x, n)
+function cae_vis(cae, x)
     figure,plot(cae.L);
     
     w = zeros(cae.ks,(cae.ks+2)*cae.oc,cae.ic);
     for oc = 1:cae.oc
-        tmp = cae.w(:,:,:,oc);
-%         tmp = (tmp-min(tmp(:)))/(max(tmp(:))-min(tmp(:)));
-        w(1:cae.ks,(cae.ks+2)*(oc-1)+2:(cae.ks+2)*oc-1,:) = tmp;
+        w(1:cae.ks,(cae.ks+2)*(oc-1)+2:(cae.ks+2)*oc-1,:) = cae.w(:,:,:,oc);
     end
-    figure,imshow(imresize(w,10,'nearest'));
+%     figure,imshow(imresize(w,10,'nearest'));
+    figure,imshow(imresize(w,10,'nearest'),[min(w(:)) max(w(:))]);
     
+    n = 10;
     sample_id = randi(size(x,4),1,n^2);
     x = x(:,:,:,sample_id);
     opts.alpha = 0;

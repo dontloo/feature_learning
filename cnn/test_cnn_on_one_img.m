@@ -14,12 +14,12 @@ function [ er, pred, lbl ] = test_cnn_on_one_img(cnn,data_file_name,lbl_file_nam
     classes = [0,128,255];
 
 %     pred = pred_all (cnn,para,d,U,S,avg,epsilon);
-%     pred = slice_and_pred_pxl(cnn,para,d,U,S,avg,epsilon);
-    pred = pred_superpxl(cnn,para,im,d,U,S,avg,epsilon);
+    pred = slice_and_pred_pxl(cnn,para,d,U,S,avg,epsilon);
+%     pred = pred_superpxl(cnn,para,im,d,U,S,avg,epsilon);
 
 %     figure, imshow(im);
 %     figure, imshow(mat2gray(pred, [1 3]));
-    imwrite(mat2gray(pred, [1 3]),['/home/dontloo/Desktop/re/tmp/' data_file_name(end-18:end)]);
+%     imwrite(mat2gray(pred, [1 3]),['/home/dontloo/Desktop/thesis/pics/cae_' data_file_name(end-18:end) ]);
     pred = classes(pred);  
     lbl = imread(lbl_file_name);
     lbl = crop_im(lbl, para.img_m, para.img_n, floor(para.win_m/2), floor(para.win_n/2));

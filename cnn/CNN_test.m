@@ -1,23 +1,26 @@
 function CNN_test
-    load('/media/662CD4C02CD48D05/_backup/data/train_res/CNN_ZCA_15.24_cyan_2_264*3*5_RGB_blnc.mat');
+    load('/media/662CD4C02CD48D05/_backup/data/train_res/CNN_CAE_15.24_cyan_2_264*3*5_RGB_blnc.mat');
     U=0;S=0;avg=0;epsilon=0;
     
-    load('/media/662CD4C02CD48D05/_backup/data/test_data/cyan_20_20*100_RGB.mat');
+    load('/media/662CD4C02CD48D05/_backup/data/test_data/road_test_4_205*100_RGB.mat');
     para.prepro = 0;
-    % ZCA
-    para.prepro = 1;
-    load('/media/662CD4C02CD48D05/_backup/data/train_data/ZCA_road_all_942*1*32_RGB_rdm.mat');
-    % ZCA
-    err = image_test('/media/662CD4C02CD48D05/_backup/data/images/cyan_20/', '/media/662CD4C02CD48D05/_backup/data/images/cyan_20_lab/',cnn,para,U,S,avg,epsilon);
-%     [er,pred,lbl] = batch_test(2000, test_x, test_y, cnn,U,S,avg,epsilon,para);
-    disp(err);
-%     % my_plot(test_x,pred,lbl,para);
+%     % ZCA
+%     para.prepro = 1;
+%     load('/media/662CD4C02CD48D05/_backup/data/train_data/ZCA_road_all_942*1*32_RGB_rdm.mat');
+%     % ZCA
     
-
     % road_test_4/
-    % 0015_0000000000
+    % 0016_0000000250.png
     % road_test_4_lab/
     % 0032_0000000020
+    test_cnn_on_one_img(cnn, '/media/662CD4C02CD48D05/_backup/data/images/road_test_4/0015_0000000000.png', '/media/662CD4C02CD48D05/_backup/data/images/road_test_4_lab/0015_0000000000.pgm',para,U,S,avg,epsilon);
+    
+    
+    % road_test_4 road_test_4_lab
+    % cyan_20 cyan_20_lab
+    err = image_test('/media/662CD4C02CD48D05/_backup/data/images/road_test_4/', '/media/662CD4C02CD48D05/_backup/data/images/road_test_4_lab/',cnn,para,U,S,avg,epsilon);
+%     [err,pred,lbl] = batch_test(2000, test_x, test_y, cnn,U,S,avg,epsilon,para);
+    disp(err);
    end
 
 function err = image_test(im_folder, lbl_folder, cnn,para,U,S,avg,epsilon)
